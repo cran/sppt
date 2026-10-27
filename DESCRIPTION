@@ -1,0 +1,39 @@
+Package: sppt
+Type: Package
+Title: Spatial Point Pattern Test for Areal Data
+Version: 1.0.0
+Authors@R: 
+    person("Martin A.", "Andresen", email = "andresen@sfu.ca",
+           role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "0000-0002-4767-7276"))
+Description: Implements the area-based nonparametric spatial point pattern
+    test of Andresen (2009) <doi:10.1016/j.apgeog.2008.12.004> for comparing
+    two spatial distributions of events aggregated to areal units, with the
+    applications and extensions reviewed in Andresen (2016)
+    <doi:10.1177/2059799116630659>. Unit-level inference uses bounded Monte
+    Carlo bootstrap p-values, with marginal confidence interval overlap
+    retained as an option. Global similarity is summarised by the robust S
+    index, accompanied by a test of whether two patterns are more different
+    than two realisations of a single process, and a test of the spatial
+    arrangement of the differences. A longitudinal extension compares each
+    period of a time series against a base period and classifies unit-level
+    trajectories. Publication-ready maps can be redrawn with user-chosen
+    layouts.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+LazyDataCompression: xz
+Depends: R (>= 4.1.0)
+Imports: classInt, ggplot2 (>= 3.5.0), ggspatial, graphics, grDevices,
+        Matrix, rlang, scales, sf, spdep, stats, tools, utils
+Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+RoxygenNote: 7.3.3
+NeedsCompilation: no
+Packaged: 2026-10-16 07:21:59 UTC; andre
+Author: Martin A. Andresen [aut, cre, cph] (ORCID:
+    <https://orcid.org/0000-0002-4767-7276>)
+Maintainer: Martin A. Andresen <andresen@sfu.ca>
+Repository: CRAN
+Date/Publication: 2026-10-27 15:00:11 UTC

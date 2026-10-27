@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Comparing two spatial patterns with sppt()</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Comparing two spatial patterns with
+sppt()</h1>
+
+
+
+<p>The spatial point pattern test asks whether two sets of events, for
+example residential burglaries in two different years, are distributed
+the same way across a set of areal units. <code>sppt()</code> answers
+that unit by unit, and then summarises the whole map.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(sppt)</span></code></pre></div>
+<div id="getting-started" class="section level2">
+<h2>Getting started</h2>
+<p>The package includes residential (<code>BNER</code>) and commercial
+(<code>BNEC</code>) burglary counts for Vancouver from 2003 to 2025, in
+127 census tracts (<code>vancouver_ct</code>) and 1,016 dissemination
+areas (<code>vancouver_da</code>).</p>
+<p>To compare residential burglary in 2003 (the base) with 2025 (the
+test), name the identifier column and the two count columns.
+<code>alpha = 0.05</code> is the default and is shown here for
+clarity.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">sppt</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">data      =</span> vancouver_ct,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">group_col =</span> <span class="st">&quot;id&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">count_col =</span> <span class="fu">c</span>(<span class="st">&quot;BNER2003&quot;</span>, <span class="st">&quot;BNER2025&quot;</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">B         =</span> <span class="dv">999</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">alpha     =</span> <span class="fl">0.05</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">seed      =</span> <span class="dv">42</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">create_maps =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; ==================================================================</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; Spatial Point Pattern Test</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; ==================================================================</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;   Base variable : BNER2003  (N = 6875)</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;   Test variable : BNER2025  (N = 885)</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt;   Spatial units : 127</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt;   lambda_min    : 6.969</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;   Bootstrap B   : 999</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;   P-value alpha : 0.050</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;   Decision tier : Medium-high scale (6 &lt;= lambda_min &lt; 17): PV alpha = 0.05 recommended.</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; ------------------------------------------------------------------</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;   Robust S-index  : 0.6378  (46 of 127 units dissimilar at alpha = 0.050)</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;     BNER2025 &gt; BNER2003 : 13 units</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;     BNER2003 &gt; BNER2025 : 33 units</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;   Sameness test   : S = 0.6378 vs 0.9500 expected, p &lt; 0.0001 (exact binomial)</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;     Threshold     : S &gt;= 0.9182 at tau = 0.05</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;     Verdict       : more different than two realisations of one process</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;   Arrangement     : Moran&#39;s I = +0.3451 on signed evidence, p = 0.0010 (999 perms)</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt;     Local clusters: 10 units where BNER2025 &gt; BNER2003, 9 units where BNER2003 &gt; BNER2025</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt;   Two-way verdict</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt;                        | arrangement random    | arrangement clustered</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;     -----------------------------------------------------------------</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;     count at chance    | same process          | few differences, but concentrated</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt;     count above chance | many, diffuse          | differences real and localised &lt;&lt;&lt;</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt;     This result        : count above chance, arrangement clustered</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; ==================================================================</span></span></code></pre></div>
+<p>The console report gives:</p>
+<ul>
+<li><strong>lambda_min</strong>, the mean number of events per unit in
+the rarer pattern, which governs power, and the decision tier that
+follows from it;</li>
+<li>the <strong>robust S index</strong>, the share of units (not empty
+in both years) whose share of events did not change significantly;</li>
+<li>the <strong>sameness test</strong>, which asks whether that S index
+is lower than two realisations of one process would give;</li>
+<li>the <strong>arrangement test</strong>, Moran’s I on the signed
+evidence surface, which asks whether the differences cluster in
+space.</li>
+</ul>
+<p><code>summary()</code> repeats the key results at any time.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">summary</span>(res)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; ==================================================================</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; SPPT Summary</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; ==================================================================</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;   Base             : BNER2003</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;   Test             : BNER2025</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   Spatial units    : 127  (127 eligible, 0 zero-zero excluded)</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;   lambda_min       : 6.969</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;   Bootstrap B      : 999</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;   Robust S-index   : 0.6378  (alpha = 0.050; 46 dissimilar)</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;   Sameness test    : p &lt; 0.0001  (expected S = 0.9500, SE = 0.0193, exact binomial)</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;   Sameness cut-off : S &gt;= 0.9182 at tau = 0.05  [different]</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;   Arrangement      : Moran&#39;s I = +0.3451 on signed evidence, p = 0.0010</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt;   Local clusters   : 10 (BNER2025 &gt; BNER2003), 9 (BNER2003 &gt; BNER2025)</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;   Decision tier    : Medium-high scale (6 &lt;= lambda_min &lt; 17): PV alpha = 0.05 recommended.</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; ==================================================================</span></span></code></pre></div>
+<p>Each unit gets a p-value and a direction: 1 where the test pattern
+has the larger share, -1 where the base has, and 0 where the difference
+is not significant.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">table</span>(res<span class="sc">$</span>sig_pvalue_dir, <span class="at">useNA =</span> <span class="st">&quot;ifany&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; -1  0  1 </span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; 33 81 13</span></span></code></pre></div>
+<p>The p-value is the bounded Monte Carlo form <span class="math inline">\(p = (1 + r)/(B + 1)\)</span>, so it is never
+exactly zero; with <code>B = 999</code> the smallest possible value is
+0.001. <code>B = 4999</code> (the default) is recommended for final
+analyses.</p>
+</div>
+<div id="maps" class="section level2">
+<h2>Maps</h2>
+<p>With <code>create_maps = TRUE</code> (the default),
+<code>sppt()</code> prints a difference map and a significance map and
+stores both on the result. <code>sppt_map()</code> redraws them, with
+the legend, north arrow and scale bar wherever suits your study
+area.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">sppt_map</span>(res, <span class="st">&quot;pvalue&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">sppt_map</span>(res, <span class="st">&quot;pvalue&quot;</span>, <span class="at">legend_position =</span> <span class="st">&quot;right&quot;</span>,</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>         <span class="at">north_arrow =</span> <span class="st">&quot;tl&quot;</span>, <span class="at">scale_bar =</span> <span class="st">&quot;br&quot;</span>, <span class="at">title =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<p>The maps are ordinary <code>ggplot</code> objects, so anything else
+can be changed by adding to them, for example
+<code>sppt_map(res, &quot;difference&quot;) + ggplot2::scale_fill_viridis_c()</code>.</p>
+</div>
+<div id="saving-results" class="section level2">
+<h2>Saving results</h2>
+<p>Nothing is written to disk unless you ask. To save the maps and the
+result, name a directory:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">sppt</span>(vancouver_ct, <span class="at">group_col =</span> <span class="st">&quot;id&quot;</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>            <span class="at">count_col =</span> <span class="fu">c</span>(<span class="st">&quot;BNER2003&quot;</span>, <span class="st">&quot;BNER2025&quot;</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>            <span class="at">export_maps =</span> <span class="cn">TRUE</span>, <span class="at">export_results =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>            <span class="at">export_format =</span> <span class="st">&quot;gpkg&quot;</span>, <span class="at">export_dir =</span> <span class="st">&quot;sppt_output&quot;</span>)</span></code></pre></div>
+<p><code>export_format = &quot;rds&quot;</code> keeps the summary and the maps
+with the data; <code>readRDS()</code> restores everything, and
+<code>summary()</code> and <code>sppt_map()</code> work on the reloaded
+object. The result is also an ordinary <code>sf</code> object, so
+<code>sf::st_write()</code> works on it directly.</p>
+</div>
+<div id="all-options" class="section level2">
+<h2>All options</h2>
+<p>The call below lists every argument with its default value.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">sppt</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">data               =</span> vancouver_ct,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">group_col          =</span> <span class="st">&quot;id&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">count_col          =</span> <span class="fu">c</span>(<span class="st">&quot;BNER2003&quot;</span>, <span class="st">&quot;BNER2025&quot;</span>), <span class="co"># base, then test</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">B                  =</span> <span class="dv">4999</span>,    <span class="co"># bootstrap replicates; odd avoids ties</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">seed               =</span> <span class="cn">NULL</span>,    <span class="co"># set for reproducible results</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">alpha              =</span> <span class="fl">0.05</span>,    <span class="co"># unit-level significance level</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">calculate_pvalues  =</span> <span class="cn">TRUE</span>,    <span class="co"># bootstrap p-values</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="at">sameness_tau       =</span> <span class="fl">0.05</span>,    <span class="co"># significance level of the sameness test</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="at">arrangement        =</span> <span class="cn">TRUE</span>,    <span class="co"># Moran&#39;s I on the signed evidence surface</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  <span class="at">nsim_moran         =</span> <span class="dv">999</span>,     <span class="co"># permutations for global Moran&#39;s I</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="at">calculate_ci       =</span> <span class="cn">FALSE</span>,   <span class="co"># also compute marginal CI overlap (2009)</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>  <span class="at">conf_level         =</span> <span class="fl">0.683</span>,   <span class="co"># CI level; matches alpha = 0.05</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>  <span class="at">fix_base           =</span> <span class="cn">FALSE</span>,   <span class="co"># TRUE = do not bootstrap the base pattern</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>  <span class="at">use_percentages    =</span> <span class="cn">TRUE</span>,    <span class="co"># percentages (0-100) rather than proportions</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>  <span class="at">verbose            =</span> <span class="cn">TRUE</span>,    <span class="co"># print the console report</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>  <span class="at">create_maps        =</span> <span class="cn">TRUE</span>,    <span class="co"># build, print and store the maps</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>  <span class="at">map_crs            =</span> <span class="cn">NULL</span>,    <span class="co"># CRS for the maps; NULL keeps that of data</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>  <span class="at">export_maps        =</span> <span class="cn">FALSE</span>,   <span class="co"># save maps as PNG in export_dir</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  <span class="at">export_dir         =</span> <span class="cn">NULL</span>,    <span class="co"># required for any export</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>  <span class="at">map_dpi            =</span> <span class="dv">300</span>,     <span class="co"># resolution of exported maps</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>  <span class="at">export_results     =</span> <span class="cn">FALSE</span>,   <span class="co"># save the result</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>  <span class="at">export_format      =</span> <span class="st">&quot;gpkg&quot;</span>,  <span class="co"># gpkg, shp, csv, txt or rds</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>  <span class="at">export_results_dir =</span> <span class="cn">NULL</span>     <span class="co"># defaults to export_dir</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>)</span></code></pre></div>
+<div id="confidence-interval-overlap" class="section level3">
+<h3>Confidence interval overlap</h3>
+<p>The original test (Andresen 2009) compared bootstrap confidence
+intervals. <code>calculate_ci = TRUE</code> adds that method alongside
+the p-values, using the same bootstrap replicates. The default
+<code>conf_level = 0.683</code> (about one standard deviation per tail)
+matches the performance of <code>alpha = 0.05</code> p-values; 0.95
+reproduces the original, more conservative analysis.</p>
+</div>
+<div id="fixed-base" class="section level3">
+<h3>Fixed base</h3>
+<p><code>fix_base = TRUE</code> treats the base pattern as known rather
+than sampled. That suits a comparison against a theoretical or
+population distribution, but the test is then asymmetric, and the
+sameness test is not reported.</p>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Andresen, M.A. (2009). Testing for similarity in area-based spatial
+patterns: A nonparametric Monte Carlo approach. <em>Applied
+Geography</em>, 29(3), 333-345. <a href="doi:10.1016/j.apgeog.2008.12.004" class="uri">doi:10.1016/j.apgeog.2008.12.004</a></p>
+<p>Andresen, M.A. (2016). An area-based nonparametric spatial point
+pattern test: The test, its applications, and the future.
+<em>Methodological Innovations</em>, 9, Article 12. <a href="doi:10.1177/2059799116630659" class="uri">doi:10.1177/2059799116630659</a></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
